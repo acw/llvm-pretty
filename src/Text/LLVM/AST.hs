@@ -372,6 +372,7 @@ data Instr
   | Jump Ident
   | Br (Typed Value) Ident Ident
   | Comment String
+  | Inline Type String String String [Typed Value]
   | Unreachable
   | Unwind
     deriving (Show)
@@ -424,6 +425,11 @@ ppInstr (Jump i)              = text "br"
 ppInstr (Br c t f)            = text "br" <+> ppTyped ppValue c
                              <> comma <+> ppType (PrimType Label) <+> ppIdent t
                              <> comma <+> ppType (PrimType Label) <+> ppIdent f
+ppInstr (Inline r a b c vs)   = text "tail call" <+> ppType r <+> text "asm"
+                            <+> text a
+                            <+> doubleQuotes (text b) <+> comma
+                            <+> doubleQuotes (text c)
+                            <+> parens (commas (map (ppTyped ppValue) vs))
 ppInstr Unreachable           = text "unreachable"
 ppInstr Unwind                = text "unwind"
 

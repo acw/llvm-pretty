@@ -86,6 +86,7 @@ module Text.LLVM (
   , phi, PhiArg, from
   , select
   , call, call_
+  , InlineModifier(..), inlineAsm
 
     -- * Re-exported
   , module Text.LLVM.AST
@@ -584,3 +585,16 @@ call rty sym vs = observe rty (Call False rty (toValue sym) vs)
 -- | Emit a call instruction, but don't generate a new variable for its result.
 call_ :: IsValue a => Type -> a -> [Typed Value] -> BB ()
 call_ rty sym vs = effect (Call False rty (toValue sym) vs)
+
+data InlineModifier = SideEffect
+                    | AlignStack
+ deriving (Eq)
+
+-- | Emit native assembly code.
+inlineAsm :: Type -> [InlineModifier] -> String -> String -> [Typed Value] ->
+             BB (Typed Value)
+inlineAsm rty ims asm mods vs = observe rty (Inline rty amods asm mods vs)
+ where
+  amods = (if SideEffect `elem` ims then "sideeffect " else "") ++
+          (if AlignStack `elem` ims then "alignstack " else "")
+
