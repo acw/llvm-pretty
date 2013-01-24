@@ -27,7 +27,7 @@ module Text.LLVM (
   , global
 
     -- * Types
-  , iT, ptrT, voidT
+  , iT, ptrT, voidT, arrayT, refT, funT
   , (=:), (-:)
 
     -- * Values
@@ -340,7 +340,13 @@ voidT :: Type
 voidT  = PrimType Void
 
 arrayT :: Int32 -> Type -> Type
-arrayT  = Array
+arrayT = Array
+
+refT :: Ident -> Type
+refT = Alias
+
+funT :: [Type] -> Type -> Type
+funT = flip FunTy
 
 
 -- Value Helpers ---------------------------------------------------------------
