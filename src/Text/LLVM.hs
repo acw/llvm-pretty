@@ -16,7 +16,7 @@ module Text.LLVM (
   , emitDefine
 
     -- * Alias Introduction
-  , alias
+  , alias, alias'
 
     -- * Function Definition
   , freshSymbol
@@ -142,6 +142,9 @@ emitDefine d = LLVM (put emptyModule { modDefines = [d] })
 
 emitDeclare :: Declare -> LLVM ()
 emitDeclare d = LLVM (put emptyModule { modDeclares = [d] })
+
+alias' :: Ident -> Type -> LLVM Type
+alias' i ty = emitTypeDecl (TypeDecl i ty) >> (return (Alias i))
 
 alias :: Ident -> Type -> LLVM ()
 alias i ty = emitTypeDecl (TypeDecl i ty)
