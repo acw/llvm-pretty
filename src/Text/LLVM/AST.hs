@@ -95,7 +95,8 @@ ppPrimType X86mmx         = text "x86mmx"
 ppPrimType Metadata       = text "metadata"
 
 data FloatType
-  = Float
+  = Half
+  | Float
   | Double
   | Fp128
   | X86_fp80
@@ -103,6 +104,7 @@ data FloatType
     deriving (Show,Eq)
 
 ppFloatType :: FloatType -> Doc
+ppFloatType Half      = text "half"
 ppFloatType Float     = text "float"
 ppFloatType Double    = text "double"
 ppFloatType Fp128     = text "fp128"
