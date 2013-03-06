@@ -27,7 +27,7 @@ module Text.LLVM (
   , global
 
     -- * Types
-  , iT, ptrT, voidT, arrayT, refT, funT
+  , iT, ptrT, voidT, arrayT, refT, funT, structT
   , (=:), (-:)
 
     -- * Values
@@ -352,6 +352,8 @@ refT = Alias
 funT :: [Type] -> Type -> Type
 funT = flip FunTy
 
+structT :: [Type] -> Type
+structT = Struct
 
 -- Value Helpers ---------------------------------------------------------------
 
