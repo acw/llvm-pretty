@@ -22,32 +22,36 @@ ppMaybe  = maybe empty
 -- Modules ---------------------------------------------------------------------
 
 data Module = Module
-  { modTypes    :: [TypeDecl]
-  , modGlobals  :: [Global]
-  , modDeclares :: [Declare]
-  , modDefines  :: [Define]
+  { modTypes     :: [TypeDecl]
+  , modConstants :: [Constant]
+  , modGlobals   :: [Global]
+  , modDeclares  :: [Declare]
+  , modDefines   :: [Define]
   } deriving (Show)
 
 instance Monoid Module where
   mempty = emptyModule
   mappend m1 m2 = Module
-    { modTypes    = modTypes    m1 ++ modTypes    m2
-    , modGlobals  = modGlobals  m1 ++ modGlobals  m2
-    , modDeclares = modDeclares m1 ++ modDeclares m2
-    , modDefines  = modDefines  m1 ++ modDefines  m2
+    { modTypes     = modTypes     m1 ++ modTypes     m2
+    , modConstants = modConstants m1 ++ modConstants m2
+    , modGlobals   = modGlobals   m1 ++ modGlobals   m2
+    , modDeclares  = modDeclares  m1 ++ modDeclares  m2
+    , modDefines   = modDefines   m1 ++ modDefines   m2
     }
 
 emptyModule :: Module
 emptyModule  = Module
-  { modTypes    = []
-  , modGlobals  = []
-  , modDeclares = []
-  , modDefines  = []
+  { modTypes     = []
+  , modConstants = []
+  , modGlobals   = []
+  , modDeclares  = []
+  , modDefines   = []
   }
 
 ppModule :: Module -> Doc
 ppModule m = vcat $ concat
   [ map ppTypeDecl (modTypes m)
+  , map ppConstant (modConstants m)
   , map ppGlobal   (modGlobals m)
   , map ppDeclare  (modDeclares m)
   , map ppDefine   (modDefines m)
@@ -144,6 +148,21 @@ data TypeDecl = TypeDecl
 ppTypeDecl :: TypeDecl -> Doc
 ppTypeDecl td = ppIdent (typeName td) <+> char '='
             <+> text "type" <+> ppType (typeValue td)
+
+-- Constants -------------------------------------------------------------------
+
+data Constant = Constant
+  { cnstSym   :: Symbol
+  , cnstLink  :: Maybe Linkage
+  , cnstType  :: Type
+  , cnstValue :: Value
+  } deriving Show
+
+ppConstant :: Constant -> Doc
+ppConstant c = ppSymbol (cnstSym c) <+> char '='
+           <+> ppMaybe ppLinkage (cnstLink c)
+           <+> text "constant"
+           <+> ppType (cnstType c) <+> ppValue (cnstValue c)
 
 -- Globals ---------------------------------------------------------------------
 

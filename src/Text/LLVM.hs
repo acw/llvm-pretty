@@ -12,6 +12,7 @@ module Text.LLVM (
   , runLLVM
   , emitTypeDecl
   , emitGlobal
+  , emitConstant
   , emitDeclare
   , emitDefine
 
@@ -25,6 +26,7 @@ module Text.LLVM (
   , define'
   , declare
   , global
+  , constant
 
     -- * Types
   , iT, ptrT, voidT, arrayT, refT, funT, structT
@@ -138,6 +140,9 @@ emitTypeDecl td = LLVM (put emptyModule { modTypes = [td] })
 emitGlobal :: Global -> LLVM ()
 emitGlobal g = LLVM (put emptyModule { modGlobals = [g] })
 
+emitConstant :: Constant -> LLVM ()
+emitConstant c = LLVM (put emptyModule { modConstants = [c] })
+
 emitDefine :: Define -> LLVM ()
 emitDefine d = LLVM (put emptyModule { modDefines = [d] })
 
@@ -167,6 +172,15 @@ global sym val = emitGlobal Global
   { globalSym   = sym
   , globalType  = typedType val
   , globalValue = typedValue val
+  }
+
+-- | Emit a constant declaration.
+constant :: Maybe Linkage -> Symbol -> Typed Value -> LLVM ()
+constant ml sym val = emitConstant Constant
+  { cnstSym   = sym
+  , cnstLink  = ml
+  , cnstType  = typedType val
+  , cnstValue = typedValue val
   }
 
 -- | Output a somewhat clunky representation for a string global, that deals
