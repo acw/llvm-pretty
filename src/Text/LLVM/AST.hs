@@ -540,6 +540,21 @@ ppValue (ValArray ty es)     = brackets
 ppValue (ValStruct fs)       = braces (commas (map (ppTyped ppValue) fs))
 ppValue (ValPackedStruct fs) = angles
                              $ braces (commas (map (ppTyped ppValue) fs))
+ppValue (ValString s)        = text "c" <> doubleQuotes (text (addEscapes s))
+ where
+  addEscapes []        = []
+  addEscapes ('\0':xs) = "\\0"  ++ addEscapes xs
+  addEscapes ('\a':xs) = "\\a"  ++ addEscapes xs
+  addEscapes ('\b':xs) = "\\b"  ++ addEscapes xs
+  addEscapes ('\f':xs) = "\\f"  ++ addEscapes xs
+  addEscapes ('\n':xs) = "\\n"  ++ addEscapes xs
+  addEscapes ('\r':xs) = "\\r"  ++ addEscapes xs
+  addEscapes ('\t':xs) = "\\t"  ++ addEscapes xs
+  addEscapes ('\v':xs) = "\\v"  ++ addEscapes xs
+  addEscapes ('\"':xs) = "\\\"" ++ addEscapes xs
+  addEscapes ('\'':xs) = "\\'"  ++ addEscapes xs
+  addEscapes ('\\':xs) = "\\\\" ++ addEscapes xs
+  addEscapes (x   :xs) = x       : addEscapes xs
 
 -- Statements ------------------------------------------------------------------
 
