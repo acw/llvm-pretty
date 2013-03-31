@@ -89,6 +89,7 @@ module Text.LLVM (
   , select
   , call, call_
   , InlineModifier(..), inlineAsm
+  , blockaddress, indirectbr
 
     -- * Re-exported
   , module Text.LLVM.AST
@@ -614,3 +615,8 @@ inlineAsm rty ims asm mods vs = observe rty (Inline rty amods asm mods vs)
   amods = (if SideEffect `elem` ims then "sideeffect " else "") ++
           (if AlignStack `elem` ims then "alignstack " else "")
 
+blockaddress :: Symbol -> Ident -> BB (Typed Value)
+blockaddress fun ident = observe (iT 8) (BlockAddress fun ident)
+
+indirectbr :: IsValue a => Typed a -> [Ident] -> BB ()
+indirectbr target options = effect (IndirectBr (toValue `fmap` target) options)

@@ -394,6 +394,8 @@ data Instr
   | Br (Typed Value) Ident Ident
   | Comment String
   | Inline Type String String String [Typed Value]
+  | BlockAddress Symbol Ident
+  | IndirectBr (Typed Value) [Ident]
   | Unreachable
   | Unwind
     deriving (Show)
@@ -451,6 +453,12 @@ ppInstr (Inline r a b c vs)   = text "tail call" <+> ppType r <+> text "asm"
                             <+> doubleQuotes (text b) <+> comma
                             <+> doubleQuotes (text c)
                             <+> parens (commas (map (ppTyped ppValue) vs))
+ppInstr (BlockAddress f l)    = text "blockaddress"
+                            <+> parens (ppSymbol f <+> comma <+> ppIdent l)
+ppInstr (IndirectBr t os)     = text "indirectbr" <+> ppTyped ppValue t
+                            <+> brackets
+                                 (commas
+                                   (map (\ x -> text "label" <+> ppIdent x) os))
 ppInstr Unreachable           = text "unreachable"
 ppInstr Unwind                = text "unwind"
 
