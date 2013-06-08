@@ -394,7 +394,6 @@ data Instr
   | Br (Typed Value) Ident Ident
   | Comment String
   | Inline Type String String String [Typed Value]
-  | BlockAddress Symbol Ident
   | IndirectBr (Typed Value) [Ident]
   | Unreachable
   | Unwind
@@ -453,8 +452,6 @@ ppInstr (Inline r a b c vs)   = text "tail call" <+> ppType r <+> text "asm"
                             <+> doubleQuotes (text b) <+> comma
                             <+> doubleQuotes (text c)
                             <+> parens (commas (map (ppTyped ppValue) vs))
-ppInstr (BlockAddress f l)    = text "blockaddress"
-                            <+> parens (ppSymbol f <+> comma <+> ppIdent l)
 ppInstr (IndirectBr t os)     = text "indirectbr" <+> ppTyped ppValue t
                             <+> brackets
                                  (commas
@@ -534,6 +531,7 @@ data Value
   | ValStruct [Typed Value]
   | ValPackedStruct [Typed Value]
   | ValString String
+  | ValBlockAddr Symbol Ident
     deriving (Show)
 
 ppValue :: Value -> Doc
@@ -548,6 +546,8 @@ ppValue (ValArray ty es)     = brackets
 ppValue (ValStruct fs)       = braces (commas (map (ppTyped ppValue) fs))
 ppValue (ValPackedStruct fs) = angles
                              $ braces (commas (map (ppTyped ppValue) fs))
+ppValue (ValBlockAddr s i)   = text "blockaddress"
+                           <+> parens (ppSymbol s <+> comma <+> ppIdent i)
 ppValue (ValString s)        = text "c" <> doubleQuotes (text (addEscapes s))
  where
   addEscapes []        = []
