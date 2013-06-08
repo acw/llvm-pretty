@@ -1,7 +1,7 @@
 module Text.LLVM.AST where
 
 import Data.Int (Int32)
-import Data.List (intersperse)
+import Data.List (intersperse,union)
 import Data.Maybe (fromMaybe)
 import Data.Monoid (Monoid(..))
 import Data.String (IsString(fromString))
@@ -32,11 +32,11 @@ data Module = Module
 instance Monoid Module where
   mempty = emptyModule
   mappend m1 m2 = Module
-    { modTypes     = modTypes     m1 ++ modTypes     m2
-    , modConstants = modConstants m1 ++ modConstants m2
-    , modGlobals   = modGlobals   m1 ++ modGlobals   m2
-    , modDeclares  = modDeclares  m1 ++ modDeclares  m2
-    , modDefines   = modDefines   m1 ++ modDefines   m2
+    { modTypes     = modTypes     m1    ++   modTypes     m2
+    , modConstants = modConstants m1    ++   modConstants m2
+    , modGlobals   = modGlobals   m1    ++   modGlobals   m2
+    , modDeclares  = modDeclares  m1 `union` modDeclares  m2
+    , modDefines   = modDefines   m1    ++   modDefines   m2
     }
 
 emptyModule :: Module
@@ -125,7 +125,7 @@ data Type
   | PackedStruct [Type]
   | Vector Int32 PrimType
   | Opaque
-    deriving (Show)
+    deriving (Show, Eq)
 
 ppType :: Type -> Doc
 ppType (PrimType pt)     = ppPrimType pt
@@ -182,7 +182,7 @@ data Declare = Declare
   { decRetType :: Type
   , decName    :: Symbol
   , decArgs    :: [Type]
-  } deriving (Show)
+  } deriving (Show, Eq)
 
 ppDeclare :: Declare -> Doc
 ppDeclare d = text "declare"
