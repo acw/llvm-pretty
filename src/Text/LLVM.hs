@@ -88,7 +88,7 @@ module Text.LLVM (
   , phi, PhiArg, from
   , select
   , call, call_
-  , InlineModifier(..), inlineAsm
+  , InlineModifier(..), inlineAsm, inlineAsm_
   , blockaddress, indirectbr
 
     -- * Re-exported
@@ -611,6 +611,12 @@ data InlineModifier = SideEffect
 inlineAsm :: Type -> [InlineModifier] -> String -> String -> [Typed Value] ->
              BB (Typed Value)
 inlineAsm rty ims asm mods vs = observe rty (Inline rty amods asm mods vs)
+ where
+  amods = (if SideEffect `elem` ims then "sideeffect " else "") ++
+          (if AlignStack `elem` ims then "alignstack " else "")
+
+inlineAsm_ :: [InlineModifier] -> String -> String -> [Typed Value] -> BB ()
+inlineAsm_ ims asm mods vs = effect (Inline voidT amods asm mods vs)
  where
   amods = (if SideEffect `elem` ims then "sideeffect " else "") ++
           (if AlignStack `elem` ims then "alignstack " else "")
