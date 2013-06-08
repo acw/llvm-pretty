@@ -202,6 +202,7 @@ data Define = Define
 ppDefine :: Define -> Doc
 ppDefine d = text "define"
          <+> ppMaybe ppLinkage (funLinkage (defAttrs d))
+         <+> ppMaybe ppCConv (funCConv (defAttrs d))
          <+> ppType (defRetType d)
          <+> ppSymbol (defName d)
           <> parens (commas (map (ppTyped ppIdent) (defArgs d)))
@@ -212,12 +213,14 @@ ppDefine d = text "define"
 
 data FunAttrs = FunAttrs
   { funLinkage :: Maybe Linkage
+  , funCConv   :: Maybe CallingConvention
   , funGC      :: Maybe GC
   } deriving (Show)
 
 emptyFunAttrs :: FunAttrs
 emptyFunAttrs  = FunAttrs
   { funLinkage = Nothing
+  , funCConv   = Nothing
   , funGC      = Nothing
   }
 
@@ -275,6 +278,24 @@ ppLinkage LinkonceODR              = text "linkonce_ddr"
 ppLinkage WeakODR                  = text "weak_odr"
 ppLinkage DLLImport                = text "dllimport"
 ppLinkage DLLExport                = text "dllexport"
+
+-- |Calling convention
+data CallingConvention
+  = CCC
+  | FastCC
+  | ColdCC
+  | GHC_CC -- ^Also known as "cc 10"
+  | HiPE_CC -- ^Also known as "cc 11"
+  | CC Int
+    deriving (Show)
+
+ppCConv :: CallingConvention -> Doc
+ppCConv CCC     = text "ccc"
+ppCConv FastCC  = text "fastcc"
+ppCConv ColdCC  = text "coldcc"
+ppCConv GHC_CC  = ppCConv (CC 10)
+ppCConv HiPE_CC = ppCConv (CC 11)
+ppCConv (CC n)  = text "cc" <+> int n
 
 newtype GC = GC
   { getGC :: String
