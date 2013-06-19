@@ -474,6 +474,7 @@ ppInstr (Inline r a b c vs)   = text "tail call" <+> ppType r <+> text "asm"
                             <+> doubleQuotes (text c)
                             <+> parens (commas (map (ppTyped ppValue) vs))
 ppInstr (IndirectBr t os)     = text "indirectbr" <+> ppTyped ppValue t
+                            <+> comma
                             <+> brackets
                                  (commas
                                    (map (\ x -> text "label" <+> ppIdent x) os))
